@@ -1,0 +1,48 @@
+{
+  "name": "TrailblazerTech Timesheet",
+  "short_name": "TBT Hours",
+  "description": "Track daily work hours and expenses for TrailblazerTech.Inc",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "lang": "en",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Clock In",
+      "short_name": "Clock In",
+      "description": "Start tracking time now",
+      "url": "/index.html?action=clockin",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Add Entry",
+      "short_name": "New Entry",
+      "description": "Add a new time entry",
+      "url": "/index.html?action=new",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

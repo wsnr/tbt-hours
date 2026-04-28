@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TBT Hours">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="TBT Hours">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<title>TBT Hours — TrailblazerTech</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0f1e;
+  --surface: #111827;
+  --surface2: #1a2235;
+  --surface3: #243044;
+  --border: #2a3a55;
+  --accent: #3dffc0;
+  --accent2: #ff6b6b;
+  --accent3: #ffd166;
+  --text: #f0f4ff;
+  --text2: #8899bb;
+  --text3: #5a6a85;
+  --green: #22c55e;
+  --red: #ef4444;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --nav-h: 68px;
+  --radius: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; overflow: hidden; }
+body { display: flex; flex-direction: column; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* HEADER */
+.app-header {
+  padding: calc(var(--safe-top) + 14px) 20px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+  position: sticky; top: 0; z-index: 100;
+}
+.app-logo { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; font-family: 'Space Mono', monospace; }
+.app-title { font-size: 18px; font-weight: 800; color: var(--text); }
+.header-right { display: flex; gap: 10px; align-items: center; }
+.icon-btn { width: 40px; height: 40px; border-radius: 10px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .15s; color: var(--text2); font-size: 18px; }
+.icon-btn:active { transform: scale(0.92); background: var(--surface3); }
+
+/* MAIN CONTENT */
+.app-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px); }
+
+/* BOTTOM NAV */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  height: calc(var(--nav-h) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: flex-start;
+  padding-top: 0;
+  backdrop-filter: blur(20px);
+}
+.nav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: var(--nav-h); gap: 4px; cursor: pointer; transition: all .2s;
+  position: relative; border: none; background: none; color: var(--text3); font-family: 'Syne', sans-serif;
+}
+.nav-btn.active { color: var(--accent); }
+.nav-btn:active { opacity: 0.6; }
+.nav-icon { font-size: 22px; line-height: 1; }
+.nav-label { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+.nav-btn.active .nav-icon { transform: translateY(-1px); }
+.nav-active-dot { position: absolute; bottom: 6px; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); display: none; }
+.nav-btn.active .nav-active-dot { display: block; }
+
+/* VIEWS */
+.view { display: none; padding: 16px; }
+.view.active { display: block; }
+
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+.card-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 12px; font-family: 'Space Mono', monospace; }
+
+/* CLOCK IN/OUT SECTION */
+.clock-hero {
+  background: linear-gradient(135deg, var(--surface) 0%, #0d1b2e 100%);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 24px 20px; margin-bottom: 16px; text-align: center;
+}
+.clock-time { font-family: 'Space Mono', monospace; font-size: 42px; font-weight: 700; color: var(--text); letter-spacing: -1px; }
+.clock-date { font-size: 13px; color: var(--text2); margin-top: 4px; }
+.clock-status { display: inline-flex; align-items: center; gap: 6px; margin: 12px 0; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 1px; }
+.clock-status.clocked-out { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.3); }
+.clock-status.clocked-in { background: rgba(34,197,94,.15); color: var(--green); border: 1px solid rgba(34,197,94,.3); }
+.clock-status .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.clock-status.clocked-in .dot { animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+.timer-display { font-family: 'Space Mono', monospace; font-size: 28px; color: var(--accent); margin: 8px 0; }
+.btn-row { display: flex; gap: 10px; margin-top: 16px; }
+.btn { flex: 1; height: 52px; border-radius: 14px; border: none; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; cursor: pointer; transition: all .15s; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn:active { transform: scale(0.96); }
+.btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; }
+.btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+.btn-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
+.btn-accent { background: linear-gradient(135deg, #0d9488, #3dffc0); color: #0a0f1e; }
+.btn-ghost { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+.btn-full { width: 100%; }
+.btn-sm { height: 40px; font-size: 13px; padding: 0 16px; flex: none; }
+
+/* ENTRIES LIST */
+.entry-item {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px; margin-bottom: 8px; cursor: pointer; transition: all .2s;
+}
+.entry-item:active { transform: scale(0.985); background: var(--surface3); }
+.entry-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.entry-client { font-size: 15px; font-weight: 700; color: var(--text); }
+.entry-hours { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; color: var(--accent); }
+.entry-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.entry-tag { font-size: 11px; color: var(--text3); background: var(--surface3); border-radius: 6px; padding: 3px 8px; font-family: 'Space Mono', monospace; }
+.entry-tag.green { color: var(--green); background: rgba(34,197,94,.1); }
+.entry-tag.yellow { color: var(--accent3); background: rgba(255,209,102,.1); }
+
+/* FORM */
+.form-section { margin-bottom: 20px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-group { margin-bottom: 12px; }
+.form-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; display: block; font-family: 'Space Mono', monospace; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text); font-family: 'Syne', sans-serif; font-size: 15px; padding: 12px 14px;
+  outline: none; transition: border-color .2s; -webkit-appearance: none; appearance: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+.form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238899bb' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px; }
+.form-textarea { resize: none; min-height: 72px; }
+.calc-display { background: var(--surface3); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
+.calc-label { font-size: 12px; color: var(--text2); }
+.calc-value { font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; color: var(--accent); }
+
+/* BOTTOM SHEET */
+.sheet-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,.7); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity .3s; }
+.sheet-overlay.open { opacity: 1; pointer-events: all; }
+.bottom-sheet {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 501;
+  background: var(--surface); border-top: 1px solid var(--border); border-radius: 24px 24px 0 0;
+  padding: 0 0 calc(var(--safe-bottom) + 16px);
+  transform: translateY(100%); transition: transform .35s cubic-bezier(.32,.72,0,1);
+  max-height: 92vh; display: flex; flex-direction: column;
+}
+.bottom-sheet.open { transform: translateY(0); }
+.sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 16px; flex-shrink: 0; }
+.sheet-header { padding: 0 20px 12px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; border-bottom: 1px solid var(--border); }
+.sheet-title { font-size: 18px; font-weight: 800; }
+.sheet-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+.sheet-close { width: 32px; height: 32px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); font-size: 16px; }
+.sheet-close:active { background: var(--surface3); }
+
+/* WEEK VIEW */
+.week-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.week-nav { display: flex; gap: 8px; }
+.week-nav-btn { width: 36px; height: 36px; border-radius: 10px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); font-size: 18px; }
+.week-nav-btn:active { background: var(--surface3); }
+.week-label { font-size: 15px; font-weight: 700; color: var(--text); }
+.week-day { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+.week-day-header { padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; background: var(--surface2); }
+.week-day-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.week-day-date { font-size: 12px; color: var(--text3); font-family: 'Space Mono', monospace; }
+.week-day-total { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; color: var(--accent); }
+.week-day-entries { padding: 8px; }
+.week-entry { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border-radius: 8px; margin-bottom: 4px; background: var(--surface3); }
+.week-entry-client { font-size: 13px; font-weight: 600; color: var(--text); }
+.week-entry-time { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text2); }
+.week-entry-h { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent); font-weight: 700; }
+
+/* WEEKLY SUMMARY CARD */
+.summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.summary-stat { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.summary-stat-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; font-family: 'Space Mono', monospace; }
+.summary-stat-value { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--accent); }
+.summary-stat-value.warn { color: var(--accent3); }
+.summary-stat-value.good { color: var(--green); }
+.summary-stat-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+/* EXPENSES */
+.expense-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 8px; }
+.expense-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.expense-desc { font-size: 14px; font-weight: 700; color: var(--text); }
+.expense-amount { font-family: 'Space Mono', monospace; font-size: 15px; font-weight: 700; color: var(--accent2); }
+.expense-meta { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* BALANCE BAR */
+.balance-bar { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+.balance-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.balance-label { font-size: 12px; color: var(--text2); }
+.balance-val { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; }
+.progress-track { height: 8px; background: var(--surface3); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), #22c55e); transition: width .5s; }
+.progress-fill.warn { background: linear-gradient(90deg, var(--accent3), var(--accent2)); }
+
+/* HISTORY SEARCH */
+.search-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-family: 'Syne', sans-serif; font-size: 15px; padding: 12px 14px 12px 40px; outline: none; transition: border-color .2s; }
+.search-input:focus { border-color: var(--accent); }
+.search-wrap { position: relative; margin-bottom: 16px; }
+.search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 16px; pointer-events: none; }
+.filter-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; }
+.filter-chips::-webkit-scrollbar { display: none; }
+.chip { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; cursor: pointer; border: 1px solid var(--border); background: var(--surface2); color: var(--text2); transition: all .15s; }
+.chip.active { background: var(--accent); color: #0a0f1e; border-color: var(--accent); }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 48px 24px; }
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.empty-sub { font-size: 14px; color: var(--text2); }
+
+/* TOAST */
+.toast { position: fixed; top: calc(var(--safe-top) + 70px); left: 50%; transform: translateX(-50%) translateY(-20px); z-index: 1000; background: var(--surface3); border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; font-size: 14px; font-weight: 600; color: var(--text); opacity: 0; transition: all .3s; white-space: nowrap; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--green); color: var(--green); }
+.toast.error { border-color: var(--red); color: var(--red); }
+
+/* BADGE */
+.badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; border-radius: 10px; background: var(--accent); color: #0a0f1e; font-size: 11px; font-weight: 800; padding: 0 6px; }
+
+/* DELETE SWIPE HINT */
+.swipe-hint { font-size: 11px; color: var(--text3); text-align: center; padding: 8px; font-family: 'Space Mono', monospace; }
+
+/* RULE BADGE */
+.rule-note { font-size: 11px; background: rgba(255,209,102,.1); border: 1px solid rgba(255,209,102,.25); color: var(--accent3); border-radius: 8px; padding: 8px 12px; margin-top: 10px; line-height: 1.5; }
+
+/* EXPORT */
+.export-option { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: all .2s; }
+.export-option:active { background: var(--surface3); transform: scale(0.985); }
+.export-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.export-icon.csv { background: rgba(61,255,192,.1); }
+.export-icon.json { background: rgba(99,102,241,.1); }
+.export-icon.txt { background: rgba(255,209,102,.1); }
+.export-text-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.export-text-sub { font-size: 12px; color: var(--text2); margin-top: 3px; }
+
+/* SECTION LABEL */
+.section-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin: 16px 0 10px; font-family: 'Space Mono', monospace; }
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+/* SETTINGS */
+.setting-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.setting-label { font-size: 15px; font-weight: 600; color: var(--text); }
+.setting-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.setting-val { font-family: 'Space Mono', monospace; font-size: 14px; color: var(--accent); }
+.toggle { position: relative; width: 44px; height: 26px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: var(--surface3); border-radius: 13px; cursor: pointer; transition: .3s; }
+.toggle-slider:before { content: ''; position: absolute; width: 20px; height: 20px; left: 3px; bottom: 3px; background: var(--text3); border-radius: 50%; transition: .3s; }
+.toggle input:checked + .toggle-slider { background: var(--accent); }
+.toggle input:checked + .toggle-slider:before { transform: translateX(18px); background: #0a0f1e; }
+
+/* INSTALL BANNER */
+.install-banner { background: linear-gradient(135deg, rgba(61,255,192,.1), rgba(15,23,42,.5)); border: 1px solid rgba(61,255,192,.3); border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.install-banner-icon { font-size: 28px; flex-shrink: 0; }
+.install-banner-text .title { font-size: 14px; font-weight: 700; color: var(--accent); }
+.install-banner-text .sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.install-banner-arrow { margin-left: auto; color: var(--accent); font-size: 18px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div>
+    <div class="app-logo">TrailblazerTech.Inc</div>
+    <div class="app-title">Hours Log</div>
+  </div>
+  <div class="header-right">
+    <div class="icon-btn" onclick="openSettings()" title="Settings">⚙️</div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="app-content" id="appContent">
+
+  <!-- TODAY VIEW -->
+  <div class="view active" id="view-today">
+    <div id="installBanner" style="display:none" class="install-banner" onclick="triggerInstall()">
+      <div class="install-banner-icon">📲</div>
+      <div class="install-banner-text">
+        <div class="title">Install App</div>
+        <div class="sub">Add to Home Screen for offline access</div>
+      </div>
+      <div class="install-banner-arrow">›</div>
+    </div>
+
+    <!-- Clock In Hero -->
+    <div class="clock-hero">
+      <div class="clock-time" id="liveTime">00:00:00</div>
+      <div class="clock-date" id="liveDate"></div>
+      <div id="clockStatus" class="clock-status clocked-out">
+        <span class="dot"></span>
+        <span id="clockStatusText">Clocked Out</span>
+      </div>
+      <div class="timer-display" id="timerDisplay" style="display:none">00:00:00</div>
+      <div class="btn-row">
+        <button class="btn btn-green" id="btnClockIn" onclick="clockIn()">⏱ Clock In</button>
+        <button class="btn btn-red" id="btnClockOut" onclick="clockOut()" style="display:none">🛑 Clock Out</button>
+        <button class="btn btn-ghost btn-sm" onclick="openNewEntry()">+ Manual</button>
+      </div>
+    </div>
+
+    <!-- Today's Entries -->
+    <div class="section-label">Today's Entries</div>
+    <div id="todayEntries">
+      <div class="empty-state" id="todayEmpty">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">No entries today</div>
+        <div class="empty-sub">Clock in or add a manual entry</div>
+      </div>
+    </div>
+
+    <!-- Today Summary -->
+    <div id="todaySummary" style="display:none" class="card">
+      <div class="card-title">Today's Totals</div>
+      <div class="summary-grid">
+        <div class="summary-stat">
+          <div class="summary-stat-label">Raw Hours</div>
+          <div class="summary-stat-value" id="todayRaw">0.00h</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-stat-label">Billed Hours</div>
+          <div class="summary-stat-value good" id="todayBilled">0.00h</div>
+          <div class="summary-stat-sub">Min 2h per job</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK VIEW -->
+  <div class="view" id="view-week">
+    <div class="week-header">
+      <div>
+        <div class="section-label" style="margin:0 0 2px">Week View</div>
+        <div class="week-label" id="weekRangeLabel"></div>
+      </div>
+      <div class="week-nav">
+        <div class="week-nav-btn" onclick="changeWeek(-1)">‹</div>
+        <div class="week-nav-btn" onclick="changeWeek(0)">●</div>
+        <div class="week-nav-btn" onclick="changeWeek(1)">›</div>
+      </div>
+    </div>
+
+    <!-- Weekly Summary -->
+    <div class="card" id="weeklySummaryCard">
+      <div class="card-title">Weekly Summary</div>
+      <div class="summary-grid">
+        <div class="summary-stat">
+          <div class="summary-stat-label">Raw Hours</div>
+          <div class="summary-stat-value" id="weekRaw">0.00h</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-stat-label">Billed Hours</div>
+          <div class="summary-stat-value good" id="weekBilled">0.00h</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-stat-label">Applied Hrs</div>
+          <div class="summary-stat-value" id="weekApplied">30.00h</div>
+          <div class="summary-stat-sub">Min 30h/week</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-stat-label">Entries</div>
+          <div class="summary-stat-value" id="weekEntryCount">0</div>
+        </div>
+      </div>
+      <div class="rule-note">📌 Minimum 2h per job enforced in Billed Hours. Minimum 30h/week enforced in Applied Hours.</div>
+    </div>
+
+    <div id="weekDays"></div>
+  </div>
+
+  <!-- HISTORY VIEW -->
+  <div class="view" id="view-history">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" type="text" placeholder="Search client, notes..." id="searchInput" oninput="renderHistory()">
+    </div>
+    <div class="filter-chips" id="filterChips">
+      <div class="chip active" data-filter="all" onclick="setFilter('all', this)">All</div>
+      <div class="chip" data-filter="week" onclick="setFilter('week', this)">This Week</div>
+      <div class="chip" data-filter="month" onclick="setFilter('month', this)">This Month</div>
+    </div>
+    <div id="historyList"></div>
+  </div>
+
+  <!-- EXPENSES VIEW -->
+  <div class="view" id="view-expenses">
+    <div class="card" id="balanceCard">
+      <div class="card-title">Advance Allowance</div>
+      <div class="balance-bar" style="background:none;border:none;padding:0">
+        <div class="balance-row">
+          <span class="balance-label">Starting Balance</span>
+          <span class="balance-val" style="color:var(--green)" id="expStartBal">$0.00</span>
+        </div>
+        <div class="balance-row">
+          <span class="balance-label">Total Spent</span>
+          <span class="balance-val" style="color:var(--accent2)" id="expSpent">$0.00</span>
+        </div>
+        <div class="balance-row">
+          <span class="balance-label">Remaining</span>
+          <span class="balance-val" id="expRemaining">$0.00</span>
+        </div>
+        <div class="progress-track" style="margin-top:8px">
+          <div class="progress-fill" id="expProgress" style="width:100%"></div>
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+        <div class="form-group" style="margin:0;flex:1">
+          <label class="form-label">Set Balance ($)</label>
+          <input class="form-input" type="number" id="balanceInput" placeholder="0.00" step="0.01" oninput="updateBalance()" style="padding:10px 12px">
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="section-label" style="margin:0">Expense Log</div>
+      <button class="btn btn-accent btn-sm" onclick="openNewExpense()">+ Add</button>
+    </div>
+    <div id="expenseList">
+      <div class="empty-state" id="expEmpty">
+        <div class="empty-icon">💰</div>
+        <div class="empty-title">No expenses logged</div>
+        <div class="empty-sub">Track your advance spending here</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPORT VIEW -->
+  <div class="view" id="view-export">
+    <div class="section-label">Export Data</div>
+    <div class="export-option" onclick="exportCSV()">
+      <div class="export-icon csv">📊</div>
+      <div>
+        <div class="export-text-title">Export as CSV</div>
+        <div class="export-text-sub">Open in Excel, Google Sheets</div>
+      </div>
+    </div>
+    <div class="export-option" onclick="exportJSON()">
+      <div class="export-icon json">🗂</div>
+      <div>
+        <div class="export-text-title">Export as JSON</div>
+        <div class="export-text-sub">Full data backup</div>
+      </div>
+    </div>
+    <div class="export-option" onclick="exportWeeklySummary()">
+      <div class="export-icon txt">📋</div>
+      <div>
+        <div class="export-text-title">Weekly Summary Report</div>
+        <div class="export-text-sub">Text report matching Excel format</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-label">Data Management</div>
+    <div class="export-option" onclick="importData()">
+      <div class="export-icon" style="background:rgba(99,102,241,.1)">📥</div>
+      <div>
+        <div class="export-text-title">Import JSON Backup</div>
+        <div class="export-text-sub">Restore from previous export</div>
+      </div>
+    </div>
+    <div class="export-option" onclick="confirmClearAll()">
+      <div class="export-icon" style="background:rgba(239,68,68,.1)">🗑</div>
+      <div>
+        <div class="export-text-title" style="color:var(--red)">Clear All Data</div>
+        <div class="export-text-sub">Permanently delete all entries</div>
+      </div>
+    </div>
+
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+  </div>
+
+</main>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-today" onclick="switchView('today')">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">Today</span>
+    <span class="nav-active-dot"></span>
+  </button>
+  <button class="nav-btn" id="nav-week" onclick="switchView('week')">
+    <span class="nav-icon">📅</span>
+    <span class="nav-label">Week</span>
+    <span class="nav-active-dot"></span>
+  </button>
+  <button class="nav-btn" id="nav-history" onclick="switchView('history')">
+    <span class="nav-icon">🕐</span>
+    <span class="nav-label">History</span>
+    <span class="nav-active-dot"></span>
+  </button>
+  <button class="nav-btn" id="nav-expenses" onclick="switchView('expenses')">
+    <span class="nav-icon">💳</span>
+    <span class="nav-label">Expenses</span>
+    <span class="nav-active-dot"></span>
+  </button>
+  <button class="nav-btn" id="nav-export" onclick="switchView('export')">
+    <span class="nav-icon">📤</span>
+    <span class="nav-label">Export</span>
+    <span class="nav-active-dot"></span>
+  </button>
+</nav>
+
+<!-- BOTTOM SHEET: New/Edit Entry -->
+<div class="sheet-overlay" id="entryOverlay" onclick="closeEntrySheet()"></div>
+<div class="bottom-sheet" id="entrySheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title" id="sheetTitle">New Entry</div>
+    <div class="sheet-close" onclick="closeEntrySheet()">✕</div>
+  </div>
+  <div class="sheet-body">
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input class="form-input" type="date" id="fDate">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Client / Company</label>
+      <input class="form-input" type="text" id="fClient" placeholder="e.g. Starbucks, Holiday Inn..." list="clientList">
+      <datalist id="clientList"></datalist>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Start Time</label>
+        <input class="form-input" type="time" id="fStart" oninput="calcHours()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">End Time</label>
+        <input class="form-input" type="time" id="fEnd" oninput="calcHours()">
+      </div>
+    </div>
+    <div class="calc-display" style="margin-bottom:12px">
+      <div>
+        <div class="calc-label">Raw Hours</div>
+        <div class="calc-value" id="calcRaw">—</div>
+      </div>
+      <div style="text-align:right">
+        <div class="calc-label">Billed Hours (min 2h)</div>
+        <div class="calc-value" id="calcBilled">—</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Comments / Notes</label>
+      <textarea class="form-textarea" id="fNotes" placeholder="Optional notes..."></textarea>
+    </div>
+    <div id="editId" style="display:none"></div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-ghost btn-sm" id="deleteBtn" onclick="deleteCurrentEntry()" style="display:none">🗑 Delete</button>
+      <button class="btn btn-accent btn-full" onclick="saveEntry()">💾 Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM SHEET: New Expense -->
+<div class="sheet-overlay" id="expenseOverlay" onclick="closeExpenseSheet()"></div>
+<div class="bottom-sheet" id="expenseSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title" id="expSheetTitle">New Expense</div>
+    <div class="sheet-close" onclick="closeExpenseSheet()">✕</div>
+  </div>
+  <div class="sheet-body">
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input class="form-input" type="date" id="eDate">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select class="form-select" id="eCategory">
+        <option>Materials</option>
+        <option>Tools</option>
+        <option>Transport</option>
+        <option>Food</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input class="form-input" type="text" id="eDesc" placeholder="What was purchased?">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Amount Spent ($)</label>
+      <input class="form-input" type="number" id="eAmount" placeholder="0.00" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Receipt</label>
+      <select class="form-select" id="eReceipt">
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+    </div>
+    <div id="expEditId" style="display:none"></div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-ghost btn-sm" id="expDeleteBtn" onclick="deleteCurrentExpense()" style="display:none">🗑 Delete</button>
+      <button class="btn btn-accent btn-full" onclick="saveExpense()">💾 Save Expense</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS SHEET -->
+<div class="sheet-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
+<div class="bottom-sheet" id="settingsSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title">Settings</div>
+    <div class="sheet-close" onclick="closeSettings()">✕</div>
+  </div>
+  <div class="sheet-body">
+    <div class="section-label" style="margin-top:0">Rules</div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Min 2h per job</div>
+        <div class="setting-sub">Billed hours minimum per entry</div>
+      </div>
+      <div class="setting-val">Always ON</div>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Min 30h per week</div>
+        <div class="setting-sub">Applied Hours weekly minimum</div>
+      </div>
+      <div class="setting-val">Always ON</div>
+    </div>
+    <div class="divider"></div>
+    <div class="section-label">About</div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">App Version</div>
+        <div class="setting-sub">TBT Hours PWA</div>
+      </div>
+      <div class="setting-val">v1.0</div>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Storage</div>
+        <div class="setting-sub">IndexedDB (offline-first)</div>
+      </div>
+      <div class="setting-val" id="storageCount">0 entries</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────
+// DATABASE (IndexedDB)
+// ─────────────────────────────────────────
+let db;
+const DB_NAME = 'tbt-hours-db', DB_VER = 1;
+
+function initDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('entries')) {
+        const s = d.createObjectStore('entries', { keyPath: 'id', autoIncrement: true });
+        s.createIndex('date', 'date', { unique: false });
+      }
+      if (!d.objectStoreNames.contains('expenses')) {
+        const s = d.createObjectStore('expenses', { keyPath: 'id', autoIncrement: true });
+        s.createIndex('date', 'date', { unique: false });
+      }
+      if (!d.objectStoreNames.contains('settings')) {
+        d.createObjectStore('settings', { keyPath: 'key' });
+      }
+    };
+    req.onsuccess = e => { db = e.target.result; resolve(); };
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbGet(store, key) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).get(key);
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+
+function dbPut(store, data) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).put(data);
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+
+function dbDelete(store, key) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).delete(key);
+    req.onsuccess = () => res();
+    req.onerror = () => rej(req.error);
+  });
+}
+
+function dbGetAll(store) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).getAll();
+    req.onsuccess = () => res(req.result || []);
+    req.onerror = () => rej(req.error);
+  });
+}
+
+function dbClear(store) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).clear();
+    req.onsuccess = () => res();
+    req.onerror = () => rej(req.error);
+  });
+}
+
+async function getSetting(key, def) {
+  const r = await dbGet('settings', key);
+  return r ? r.value : def;
+}
+async function setSetting(key, value) {
+  await dbPut('settings', { key, value });
+}
+
+// ─────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────
+let clockInTime = null;
+let timerInterval = null;
+let currentWeekOffset = 0;
+let historyFilter = 'all';
+let draftEntry = null;
+
+// ─────────────────────────────────────────
+// CLOCK & TIME
+// ─────────────────────────────────────────
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function fmtTime(d) {
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+function fmtTimeShort(d) {
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+function updateLiveClock() {
+  const now = new Date();
+  document.getElementById('liveTime').textContent = fmtTime(now);
+  document.getElementById('liveDate').textContent = now.toLocaleDateString('en-CA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  if (clockInTime) {
+    const elapsed = Math.floor((now - clockInTime) / 1000);
+    const h = Math.floor(elapsed / 3600);
+    const m = Math.floor((elapsed % 3600) / 60);
+    const s = elapsed % 60;
+    document.getElementById('timerDisplay').textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
+  }
+}
+
+// ─────────────────────────────────────────
+// CLOCK IN / OUT
+// ─────────────────────────────────────────
+async function clockIn() {
+  clockInTime = new Date();
+  await setSetting('clockInTime', clockInTime.toISOString());
+  document.getElementById('clockStatus').className = 'clock-status clocked-in';
+  document.getElementById('clockStatusText').textContent = 'Clocked In';
+  document.getElementById('timerDisplay').style.display = 'block';
+  document.getElementById('btnClockIn').style.display = 'none';
+  document.getElementById('btnClockOut').style.display = '';
+  if (navigator.vibrate) navigator.vibrate(50);
+  showToast('Clocked in! ⏱', 'success');
+}
+
+async function clockOut() {
+  if (!clockInTime) return;
+  const endTime = new Date();
+  const startStr = fmtTimeShort(clockInTime);
+  const endStr = fmtTimeShort(endTime);
+
+  // Pre-fill the sheet
+  document.getElementById('fDate').value = todayStr();
+  document.getElementById('fStart').value = startStr;
+  document.getElementById('fEnd').value = endStr;
+  document.getElementById('fClient').value = '';
+  document.getElementById('fNotes').value = '';
+  document.getElementById('editId').textContent = '';
+  document.getElementById('deleteBtn').style.display = 'none';
+  document.getElementById('sheetTitle').textContent = 'Save Clock Out';
+  calcHours();
+  openSheet('entrySheet', 'entryOverlay');
+
+  // Reset timer
+  clockInTime = null;
+  await setSetting('clockInTime', null);
+  document.getElementById('clockStatus').className = 'clock-status clocked-out';
+  document.getElementById('clockStatusText').textContent = 'Clocked Out';
+  document.getElementById('timerDisplay').style.display = 'none';
+  document.getElementById('btnClockIn').style.display = '';
+  document.getElementById('btnClockOut').style.display = 'none';
+  if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+}
+
+// ─────────────────────────────────────────
+// ENTRIES CRUD
+// ─────────────────────────────────────────
+function calcRawHours(start, end) {
+  if (!start || !end) return null;
+  const [sh, sm] = start.split(':').map(Number);
+  const [eh, em] = end.split(':').map(Number);
+  const raw = (eh * 60 + em - sh * 60 - sm) / 60;
+  return raw > 0 ? raw : null;
+}
+
+function calcHours() {
+  const start = document.getElementById('fStart').value;
+  const end = document.getElementById('fEnd').value;
+  const raw = calcRawHours(start, end);
+  if (raw !== null) {
+    const billed = Math.max(2, parseFloat(raw.toFixed(2)));
+    document.getElementById('calcRaw').textContent = raw.toFixed(2) + 'h';
+    document.getElementById('calcBilled').textContent = billed.toFixed(2) + 'h';
+  } else {
+    document.getElementById('calcRaw').textContent = '—';
+    document.getElementById('calcBilled').textContent = '—';
+  }
+}
+
+async function saveEntry() {
+  const date = document.getElementById('fDate').value;
+  const client = document.getElementById('fClient').value.trim();
+  const start = document.getElementById('fStart').value;
+  const end = document.getElementById('fEnd').value;
+  const notes = document.getElementById('fNotes').value.trim();
+  const editId = document.getElementById('editId').textContent;
+
+  if (!date || !client || !start || !end) {
+    showToast('Please fill in all required fields', 'error'); return;
+  }
+  const raw = calcRawHours(start, end);
+  if (!raw) { showToast('End time must be after start time', 'error'); return; }
+  const billed = Math.max(2, parseFloat(raw.toFixed(4)));
+
+  const entry = { date, client, start, end, rawHours: parseFloat(raw.toFixed(4)), billedHours: billed, notes, createdAt: new Date().toISOString() };
+  if (editId) { entry.id = parseInt(editId); entry.updatedAt = new Date().toISOString(); }
+
+  await dbPut('entries', entry);
+  closeEntrySheet();
+  await renderAll();
+  showToast(editId ? 'Entry updated ✓' : 'Entry saved ✓', 'success');
+}
+
+async function deleteCurrentEntry() {
+  const editId = document.getElementById('editId').textContent;
+  if (!editId) return;
+  if (!confirm('Delete this entry?')) return;
+  await dbDelete('entries', parseInt(editId));
+  closeEntrySheet();
+  await renderAll();
+  showToast('Entry deleted', 'error');
+}
+
+function openNewEntry() {
+  document.getElementById('fDate').value = todayStr();
+  document.getElementById('fStart').value = '';
+  document.getElementById('fEnd').value = '';
+  document.getElementById('fClient').value = '';
+  document.getElementById('fNotes').value = '';
+  document.getElementById('editId').textContent = '';
+  document.getElementById('deleteBtn').style.display = 'none';
+  document.getElementById('sheetTitle').textContent = 'New Entry';
+  document.getElementById('calcRaw').textContent = '—';
+  document.getElementById('calcBilled').textContent = '—';
+  refreshClientList();
+  openSheet('entrySheet', 'entryOverlay');
+}
+
+async function openEditEntry(id) {
+  const entry = await dbGet('entries', id);
+  if (!entry) return;
+  document.getElementById('fDate').value = entry.date;
+  document.getElementById('fClient').value = entry.client;
+  document.getElementById('fStart').value = entry.start;
+  document.getElementById('fEnd').value = entry.end;
+  document.getElementById('fNotes').value = entry.notes || '';
+  document.getElementById('editId').textContent = String(id);
+  document.getElementById('deleteBtn').style.display = '';
+  document.getElementById('sheetTitle').textContent = 'Edit Entry';
+  calcHours();
+  refreshClientList();
+  openSheet('entrySheet', 'entryOverlay');
+}
+
+async function refreshClientList() {
+  const entries = await dbGetAll('entries');
+  const clients = [...new Set(entries.map(e => e.client).filter(Boolean))];
+  const dl = document.getElementById('clientList');
+  dl.innerHTML = clients.map(c => `<option value="${esc(c)}">`).join('');
+}
+
+// ─────────────────────────────────────────
+// EXPENSES CRUD
+// ─────────────────────────────────────────
+async function updateBalance() {
+  const val = parseFloat(document.getElementById('balanceInput').value) || 0;
+  await setSetting('advanceBalance', val);
+  await renderExpenses();
+}
+
+async function saveExpense() {
+  const date = document.getElementById('eDate').value;
+  const category = document.getElementById('eCategory').value;
+  const desc = document.getElementById('eDesc').value.trim();
+  const amount = parseFloat(document.getElementById('eAmount').value) || 0;
+  const receipt = document.getElementById('eReceipt').value;
+  const editId = document.getElementById('expEditId').textContent;
+
+  if (!date || !desc || amount <= 0) { showToast('Fill in all fields', 'error'); return; }
+
+  const exp = { date, category, description: desc, amount, receipt, createdAt: new Date().toISOString() };
+  if (editId) { exp.id = parseInt(editId); exp.updatedAt = new Date().toISOString(); }
+
+  await dbPut('expenses', exp);
+  closeExpenseSheet();
+  await renderExpenses();
+  showToast('Expense saved ✓', 'success');
+}
+
+async function deleteCurrentExpense() {
+  const editId = document.getElementById('expEditId').textContent;
+  if (!editId) return;
+  if (!confirm('Delete this expense?')) return;
+  await dbDelete('expenses', parseInt(editId));
+  closeExpenseSheet();
+  await renderExpenses();
+  showToast('Expense deleted', 'error');
+}
+
+function openNewExpense() {
+  document.getElementById('eDate').value = todayStr();
+  document.getElementById('eCategory').value = 'Materials';
+  document.getElementById('eDesc').value = '';
+  document.getElementById('eAmount').value = '';
+  document.getElementById('eReceipt').value = 'Yes';
+  document.getElementById('expEditId').textContent = '';
+  document.getElementById('expDeleteBtn').style.display = 'none';
+  document.getElementById('expSheetTitle').textContent = 'New Expense';
+  openSheet('expenseSheet', 'expenseOverlay');
+}
+
+async function openEditExpense(id) {
+  const exp = await dbGet('expenses', id);
+  if (!exp) return;
+  document.getElementById('eDate').value = exp.date;
+  document.getElementById('eCategory').value = exp.category;
+  document.getElementById('eDesc').value = exp.description;
+  document.getElementById('eAmount').value = exp.amount;
+  document.getElementById('eReceipt').value = exp.receipt;
+  document.getElementById('expEditId').textContent = String(id);
+  document.getElementById('expDeleteBtn').style.display = '';
+  document.getElementById('expSheetTitle').textContent = 'Edit Expense';
+  openSheet('expenseSheet', 'expenseOverlay');
+}
+
+// ─────────────────────────────────────────
+// RENDER FUNCTIONS
+// ─────────────────────────────────────────
+async function renderAll() {
+  await renderToday();
+  await renderWeek();
+  await renderHistory();
+  await renderExpenses();
+  updateStorageCount();
+}
+
+async function renderToday() {
+  const all = await dbGetAll('entries');
+  const today = todayStr();
+  const entries = all.filter(e => e.date === today).sort((a,b) => a.start.localeCompare(b.start));
+
+  const container = document.getElementById('todayEntries');
+  const empty = document.getElementById('todayEmpty');
+  const summary = document.getElementById('todaySummary');
+
+  if (entries.length === 0) {
+    container.innerHTML = '';
+    container.appendChild(empty);
+    empty.style.display = '';
+    summary.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  summary.style.display = '';
+
+  container.innerHTML = entries.map(e => `
+    <div class="entry-item" onclick="openEditEntry(${e.id})">
+      <div class="entry-header">
+        <div class="entry-client">${esc(e.client)}</div>
+        <div class="entry-hours">${e.billedHours.toFixed(2)}h</div>
+      </div>
+      <div class="entry-meta">
+        <span class="entry-tag">${e.start} → ${e.end}</span>
+        <span class="entry-tag green">raw ${e.rawHours.toFixed(2)}h</span>
+        ${e.billedHours > e.rawHours ? `<span class="entry-tag yellow">+${(e.billedHours - e.rawHours).toFixed(2)}h min</span>` : ''}
+        ${e.notes ? `<span class="entry-tag">${esc(e.notes.substring(0,30))}</span>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  const totalRaw = entries.reduce((s, e) => s + e.rawHours, 0);
+  const totalBilled = entries.reduce((s, e) => s + e.billedHours, 0);
+  document.getElementById('todayRaw').textContent = totalRaw.toFixed(2) + 'h';
+  document.getElementById('todayBilled').textContent = totalBilled.toFixed(2) + 'h';
+}
+
+function getWeekBounds(offset) {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1) + offset * 7);
+  monday.setHours(0,0,0,0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23,59,59,999);
+  return { monday, sunday };
+}
+
+function dateStr(d) {
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+async function renderWeek() {
+  const { monday, sunday } = getWeekBounds(currentWeekOffset);
+  const all = await dbGetAll('entries');
+
+  const label = `${monday.toLocaleDateString('en-CA', {month:'short',day:'numeric'})} – ${sunday.toLocaleDateString('en-CA', {month:'short',day:'numeric', year:'numeric'})}`;
+  document.getElementById('weekRangeLabel').textContent = label;
+
+  const weekEntries = all.filter(e => e.date >= dateStr(monday) && e.date <= dateStr(sunday));
+  const totalRaw = weekEntries.reduce((s, e) => s + e.rawHours, 0);
+  const totalBilled = weekEntries.reduce((s, e) => s + e.billedHours, 0);
+  const applied = Math.max(30, totalBilled);
+
+  document.getElementById('weekRaw').textContent = totalRaw.toFixed(2) + 'h';
+  document.getElementById('weekBilled').textContent = totalBilled.toFixed(2) + 'h';
+  const appliedEl = document.getElementById('weekApplied');
+  appliedEl.textContent = applied.toFixed(2) + 'h';
+  appliedEl.className = 'summary-stat-value ' + (totalBilled >= 30 ? 'good' : 'warn');
+  document.getElementById('weekEntryCount').textContent = weekEntries.length;
+
+  // Build day rows
+  const daysContainer = document.getElementById('weekDays');
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    days.push(d);
+  }
+
+  daysContainer.innerHTML = days.map(d => {
+    const ds = dateStr(d);
+    const dayEntries = all.filter(e => e.date === ds).sort((a,b) => a.start.localeCompare(b.start));
+    const dayTotal = dayEntries.reduce((s, e) => s + e.billedHours, 0);
+    const dayName = d.toLocaleDateString('en-CA', { weekday:'short' });
+    const dayDate = d.toLocaleDateString('en-CA', { month:'short', day:'numeric' });
+    const isToday = ds === todayStr();
+
+    return `
+      <div class="week-day" style="${isToday ? 'border-color:rgba(61,255,192,.4)' : ''}">
+        <div class="week-day-header" style="${isToday ? 'background:rgba(61,255,192,.06)' : ''}">
+          <div>
+            <div class="week-day-name">${dayName}${isToday ? ' <span style="font-size:10px;color:var(--accent)">TODAY</span>' : ''}</div>
+            <div class="week-day-date">${dayDate}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="week-day-total">${dayTotal > 0 ? dayTotal.toFixed(2) + 'h' : '—'}</div>
+            <div class="icon-btn" style="width:32px;height:32px;font-size:14px" onclick="quickAddForDate('${ds}')">+</div>
+          </div>
+        </div>
+        ${dayEntries.length > 0 ? `
+          <div class="week-day-entries">
+            ${dayEntries.map(e => `
+              <div class="week-entry" onclick="openEditEntry(${e.id})">
+                <div>
+                  <div class="week-entry-client">${esc(e.client)}</div>
+                  <div class="week-entry-time">${e.start} → ${e.end}</div>
+                </div>
+                <div class="week-entry-h">${e.billedHours.toFixed(2)}h</div>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function changeWeek(dir) {
+  if (dir === 0) currentWeekOffset = 0;
+  else currentWeekOffset += dir;
+  renderWeek();
+}
+
+function quickAddForDate(date) {
+  document.getElementById('fDate').value = date;
+  document.getElementById('fStart').value = '';
+  document.getElementById('fEnd').value = '';
+  document.getElementById('fClient').value = '';
+  document.getElementById('fNotes').value = '';
+  document.getElementById('editId').textContent = '';
+  document.getElementById('deleteBtn').style.display = 'none';
+  document.getElementById('sheetTitle').textContent = 'New Entry';
+  document.getElementById('calcRaw').textContent = '—';
+  document.getElementById('calcBilled').textContent = '—';
+  refreshClientList();
+  openSheet('entrySheet', 'entryOverlay');
+}
+
+async function renderHistory() {
+  const all = await dbGetAll('entries');
+  const search = document.getElementById('searchInput').value.toLowerCase();
+
+  const now = new Date();
+  let filtered = all;
+  if (historyFilter === 'week') {
+    const { monday, sunday } = getWeekBounds(0);
+    filtered = all.filter(e => e.date >= dateStr(monday) && e.date <= dateStr(sunday));
+  } else if (historyFilter === 'month') {
+    const monthStart = `${now.getFullYear()}-${pad(now.getMonth()+1)}-01`;
+    filtered = all.filter(e => e.date >= monthStart);
+  }
+
+  if (search) {
+    filtered = filtered.filter(e => e.client.toLowerCase().includes(search) || (e.notes||'').toLowerCase().includes(search));
+  }
+
+  filtered.sort((a,b) => b.date.localeCompare(a.date) || b.start.localeCompare(a.start));
+
+  const container = document.getElementById('historyList');
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No entries found</div><div class="empty-sub">Try a different search or filter</div></div>`;
+    return;
+  }
+
+  // Group by date
+  const byDate = {};
+  filtered.forEach(e => { if (!byDate[e.date]) byDate[e.date] = []; byDate[e.date].push(e); });
+  const dates = Object.keys(byDate).sort().reverse();
+
+  container.innerHTML = dates.map(date => {
+    const entries = byDate[date];
+    const dayTotal = entries.reduce((s, e) => s + e.billedHours, 0);
+    const d = new Date(date + 'T12:00:00');
+    const dayLabel = d.toLocaleDateString('en-CA', { weekday:'short', month:'short', day:'numeric' });
+    return `
+      <div class="section-label" style="display:flex;justify-content:space-between;margin-top:16px">
+        <span>${dayLabel}</span>
+        <span style="color:var(--accent)">${dayTotal.toFixed(2)}h billed</span>
+      </div>
+      ${entries.map(e => `
+        <div class="entry-item" onclick="openEditEntry(${e.id})">
+          <div class="entry-header">
+            <div class="entry-client">${esc(e.client)}</div>
+            <div class="entry-hours">${e.billedHours.toFixed(2)}h</div>
+          </div>
+          <div class="entry-meta">
+            <span class="entry-tag">${e.start} → ${e.end}</span>
+            <span class="entry-tag green">raw ${e.rawHours.toFixed(2)}h</span>
+            ${e.notes ? `<span class="entry-tag">${esc(e.notes.substring(0,30))}</span>` : ''}
+          </div>
+        </div>
+      `).join('')}
+    `;
+  }).join('');
+}
+
+async function renderExpenses() {
+  const expenses = await dbGetAll('expenses');
+  const balance = parseFloat(await getSetting('advanceBalance', 0)) || 0;
+
+  document.getElementById('balanceInput').value = balance || '';
+  const spent = expenses.reduce((s, e) => s + (e.amount || 0), 0);
+  const remaining = balance - spent;
+
+  document.getElementById('expStartBal').textContent = '$' + balance.toFixed(2);
+  document.getElementById('expSpent').textContent = '$' + spent.toFixed(2);
+  const remEl = document.getElementById('expRemaining');
+  remEl.textContent = '$' + remaining.toFixed(2);
+  remEl.style.color = remaining >= 0 ? 'var(--accent)' : 'var(--red)';
+
+  const pct = balance > 0 ? Math.max(0, (remaining / balance) * 100) : 0;
+  const bar = document.getElementById('expProgress');
+  bar.style.width = pct + '%';
+  bar.className = 'progress-fill' + (pct < 25 ? ' warn' : '');
+
+  const container = document.getElementById('expenseList');
+  const empty = document.getElementById('expEmpty');
+
+  if (expenses.length === 0) {
+    container.innerHTML = '';
+    container.appendChild(empty);
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const sorted = [...expenses].sort((a,b) => b.date.localeCompare(a.date));
+  container.innerHTML = sorted.map(e => {
+    const d = new Date(e.date + 'T12:00:00');
+    return `
+      <div class="expense-item" onclick="openEditExpense(${e.id})">
+        <div class="expense-header">
+          <div class="expense-desc">${esc(e.description)}</div>
+          <div class="expense-amount">-$${e.amount.toFixed(2)}</div>
+        </div>
+        <div class="expense-meta">
+          <span class="entry-tag">${d.toLocaleDateString('en-CA', {month:'short',day:'numeric'})}</span>
+          <span class="entry-tag">${esc(e.category)}</span>
+          <span class="entry-tag ${e.receipt==='Yes'?'green':''}">${e.receipt==='Yes'?'✓ Receipt':'No receipt'}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function updateStorageCount() {
+  const entries = await dbGetAll('entries');
+  const expenses = await dbGetAll('expenses');
+  document.getElementById('storageCount').textContent = `${entries.length} entries, ${expenses.length} expenses`;
+}
+
+// ─────────────────────────────────────────
+// EXPORT / IMPORT
+// ─────────────────────────────────────────
+async function exportCSV() {
+  const entries = await dbGetAll('entries');
+  const header = 'Date,Client/Company,Start Time,End Time,Raw Hours,Billed Hours,Comments/Notes';
+  const rows = entries.sort((a,b)=>a.date.localeCompare(b.date)).map(e =>
+    `${e.date},"${e.client}",${e.start},${e.end},${e.rawHours.toFixed(2)},${e.billedHours.toFixed(2)},"${e.notes||''}"`
+  );
+  downloadFile('tbt-timesheet.csv', [header, ...rows].join('\n'), 'text/csv');
+  showToast('CSV exported ✓', 'success');
+}
+
+async function exportJSON() {
+  const entries = await dbGetAll('entries');
+  const expenses = await dbGetAll('expenses');
+  const balance = await getSetting('advanceBalance', 0);
+  const data = { entries, expenses, settings: { advanceBalance: balance }, exportedAt: new Date().toISOString(), company: 'TRAILBLAZERTECH.INC' };
+  downloadFile('tbt-backup.json', JSON.stringify(data, null, 2), 'application/json');
+  showToast('JSON backup exported ✓', 'success');
+}
+
+async function exportWeeklySummary() {
+  const all = await dbGetAll('entries');
+  const { monday, sunday } = getWeekBounds(0);
+  const weekEntries = all.filter(e => e.date >= dateStr(monday) && e.date <= dateStr(sunday));
+  weekEntries.sort((a,b) => a.date.localeCompare(b.date) || a.start.localeCompare(b.start));
+
+  const totalRaw = weekEntries.reduce((s,e) => s + e.rawHours, 0);
+  const totalBilled = weekEntries.reduce((s,e) => s + e.billedHours, 0);
+  const applied = Math.max(30, totalBilled);
+
+  let txt = `TRAILBLAZERTECH.INC — WEEKLY TIMESHEET SUMMARY\n`;
+  txt += `Week: ${monday.toLocaleDateString('en-CA')} to ${sunday.toLocaleDateString('en-CA')}\n`;
+  txt += `Generated: ${new Date().toLocaleString('en-CA')}\n`;
+  txt += `${'═'.repeat(60)}\n\n`;
+  txt += `${'Date'.padEnd(12)}${'Client/Company'.padEnd(22)}${'Start'.padEnd(8)}${'End'.padEnd(8)}${'Raw'.padEnd(8)}${'Billed'.padEnd(8)}Notes\n`;
+  txt += `${'-'.repeat(80)}\n`;
+  weekEntries.forEach(e => {
+    txt += `${e.date.padEnd(12)}${(e.client||'').padEnd(22)}${e.start.padEnd(8)}${e.end.padEnd(8)}${e.rawHours.toFixed(2).padEnd(8)}${e.billedHours.toFixed(2).padEnd(8)}${e.notes||''}\n`;
+  });
+  txt += `\n${'─'.repeat(80)}\n`;
+  txt += `Total Raw Hours:    ${totalRaw.toFixed(2)}\n`;
+  txt += `Total Billed Hours: ${totalBilled.toFixed(2)}\n`;
+  txt += `Applied Hours:      ${applied.toFixed(2)} (min 30h rule)\n`;
+  txt += `\nNote: Minimum 2 hours per job enforced in Billed Hours.\nMinimum 30 hours per week enforced in Applied Hours.\n`;
+
+  downloadFile('tbt-weekly-summary.txt', txt, 'text/plain');
+  showToast('Report exported ✓', 'success');
+}
+
+function downloadFile(name, content, type) {
+  const blob = new Blob([content], { type });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function importData() { document.getElementById('importFile').click(); }
+
+async function handleImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const text = await file.text();
+  try {
+    const data = JSON.parse(text);
+    if (!data.entries) { showToast('Invalid backup file', 'error'); return; }
+    if (!confirm(`Import ${data.entries.length} entries and ${(data.expenses||[]).length} expenses? Existing data will be kept.`)) return;
+    for (const e of data.entries) { delete e.id; await dbPut('entries', e); }
+    for (const e of (data.expenses||[])) { delete e.id; await dbPut('expenses', e); }
+    if (data.settings?.advanceBalance) await setSetting('advanceBalance', data.settings.advanceBalance);
+    await renderAll();
+    showToast(`Imported ${data.entries.length} entries ✓`, 'success');
+  } catch { showToast('Failed to parse file', 'error'); }
+  event.target.value = '';
+}
+
+async function confirmClearAll() {
+  if (!confirm('Delete ALL entries and expenses? This cannot be undone!')) return;
+  await dbClear('entries');
+  await dbClear('expenses');
+  await renderAll();
+  showToast('All data cleared', 'error');
+}
+
+// ─────────────────────────────────────────
+// UI HELPERS
+// ─────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function openSheet(sheetId, overlayId) {
+  document.getElementById(overlayId).classList.add('open');
+  document.getElementById(sheetId).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSheet(sheetId, overlayId) {
+  document.getElementById(overlayId).classList.remove('open');
+  document.getElementById(sheetId).classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeEntrySheet() { closeSheet('entrySheet', 'entryOverlay'); }
+function closeExpenseSheet() { closeSheet('expenseSheet', 'expenseOverlay'); }
+
+function openSettings() {
+  updateStorageCount();
+  openSheet('settingsSheet', 'settingsOverlay');
+}
+function closeSettings() { closeSheet('settingsSheet', 'settingsOverlay'); }
+
+function setFilter(f, el) {
+  historyFilter = f;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderHistory();
+}
+
+function switchView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`view-${name}`).classList.add('active');
+  document.getElementById(`nav-${name}`).classList.add('active');
+  document.getElementById('appContent').scrollTop = 0;
+  if (name === 'week') renderWeek();
+  if (name === 'history') renderHistory();
+  if (name === 'expenses') renderExpenses();
+}
+
+let toastTimer;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.classList.remove('show'); }, 2500);
+}
+
+// ─────────────────────────────────────────
+// INSTALL PWA
+// ─────────────────────────────────────────
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').style.display = '';
+});
+
+async function triggerInstall() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  if (outcome === 'accepted') {
+    document.getElementById('installBanner').style.display = 'none';
+    showToast('App installed! 🎉', 'success');
+  }
+}
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('installBanner').style.display = 'none';
+});
+
+// ─────────────────────────────────────────
+// SEED DATA FROM EXCEL (first launch)
+// ─────────────────────────────────────────
+const SEED_ENTRIES = [
+  { date: '2026-04-03', client: 'Starbuks', start: '08:30', end: '09:10', rawHours: 0.67, billedHours: 2, notes: '' },
+  { date: '2026-04-04', client: 'oi', start: '08:00', end: '10:20', rawHours: 2.33, billedHours: 2.33, notes: '' },
+  { date: '2026-04-04', client: 'G Anjou', start: '12:30', end: '15:50', rawHours: 3.33, billedHours: 3.33, notes: '' },
+  { date: '2026-04-08', client: 'Oakley', start: '07:30', end: '13:10', rawHours: 5.67, billedHours: 5.67, notes: '' },
+  { date: '2026-04-08', client: 'ATEK St-Justin', start: '13:10', end: '14:50', rawHours: 1.67, billedHours: 2, notes: '' },
+  { date: '2026-04-09', client: 'ATEK St-Justin', start: '07:10', end: '12:00', rawHours: 4.83, billedHours: 4.83, notes: '' },
+  { date: '2026-04-09', client: 'ATEK YMCA', start: '13:00', end: '13:30', rawHours: 0.5, billedHours: 2, notes: '' },
+  { date: '2026-04-09', client: 'Holiday Inn', start: '14:00', end: '18:30', rawHours: 4.5, billedHours: 4.5, notes: '' },
+  { date: '2026-04-10', client: 'Lineage', start: '08:30', end: '11:40', rawHours: 3.17, billedHours: 3.17, notes: '' },
+];
+
+async function seedIfEmpty() {
+  const existing = await dbGetAll('entries');
+  if (existing.length === 0) {
+    for (const e of SEED_ENTRIES) {
+      await dbPut('entries', { ...e, createdAt: new Date().toISOString() });
+    }
+  }
+}
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+async function init() {
+  await initDB();
+  await seedIfEmpty();
+
+  // Restore clock-in state
+  const savedClockIn = await getSetting('clockInTime', null);
+  if (savedClockIn) {
+    clockInTime = new Date(savedClockIn);
+    document.getElementById('clockStatus').className = 'clock-status clocked-in';
+    document.getElementById('clockStatusText').textContent = 'Clocked In';
+    document.getElementById('timerDisplay').style.display = 'block';
+    document.getElementById('btnClockIn').style.display = 'none';
+    document.getElementById('btnClockOut').style.display = '';
+  }
+
+  updateLiveClock();
+  setInterval(updateLiveClock, 1000);
+
+  await renderAll();
+
+  // Handle URL params
+  const params = new URLSearchParams(location.search);
+  if (params.get('action') === 'clockin') clockIn();
+  if (params.get('action') === 'new') openNewEntry();
+}
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(console.error);
+}
+
+// Touch drag dismiss for bottom sheets
+['entrySheet', 'expenseSheet', 'settingsSheet'].forEach(id => {
+  const sheet = document.getElementById(id);
+  let startY, isDragging = false;
+  sheet.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY;
+    isDragging = false;
+  }, { passive: true });
+  sheet.addEventListener('touchmove', e => {
+    const dy = e.touches[0].clientY - startY;
+    if (dy > 0) {
+      isDragging = true;
+      sheet.style.transform = `translateY(${dy}px)`;
+    }
+  }, { passive: true });
+  sheet.addEventListener('touchend', e => {
+    const dy = e.changedTouches[0].clientY - startY;
+    sheet.style.transform = '';
+    if (dy > 120) {
+      if (id === 'entrySheet') closeEntrySheet();
+      else if (id === 'expenseSheet') closeExpenseSheet();
+      else closeSettings();
+    }
+  });
+});
+
+init();
+</script>
+</body>
+</html>
