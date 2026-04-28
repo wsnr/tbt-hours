@@ -453,11 +453,11 @@ body { display: flex; flex-direction: column; }
   <!-- EXPORT VIEW -->
   <div class="view" id="view-export">
     <div class="section-label">Export Data</div>
-    <div class="export-option" onclick="exportCSV()">
-      <div class="export-icon csv">📊</div>
+    <div class="export-option" onclick="exportXLSX()">
+      <div class="export-icon csv">📗</div>
       <div>
-        <div class="export-text-title">Export as CSV</div>
-        <div class="export-text-sub">Open in Excel, Google Sheets</div>
+        <div class="export-text-title">Export as Excel (.xlsx)</div>
+        <div class="export-text-sub">Formatted workbook with 2 sheets</div>
       </div>
     </div>
     <div class="export-option" onclick="exportJSON()">
@@ -1264,14 +1264,137 @@ async function updateStorageCount() {
 // ─────────────────────────────────────────
 // EXPORT / IMPORT
 // ─────────────────────────────────────────
-async function exportCSV() {
+async function loadSheetJS() {
+  if (window.XLSX) return;
+  await new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+async function exportXLSX() {
+  showToast('Building Excel file…', '');
+  await loadSheetJS();
   const entries = await dbGetAll('entries');
-  const header = 'Date,Client/Company,Start Time,End Time,Raw Hours,Billed Hours,Comments/Notes';
-  const rows = entries.sort((a,b)=>a.date.localeCompare(b.date)).map(e =>
-    `${e.date},"${e.client}",${e.start},${e.end},${e.rawHours.toFixed(2)},${e.billedHours.toFixed(2)},"${e.notes||''}"`
-  );
-  downloadFile('tbt-timesheet.csv', [header, ...rows].join('\n'), 'text/csv');
-  showToast('CSV exported ✓', 'success');
+  const expenses = await dbGetAll('expenses');
+  const balance = parseFloat(await getSetting('advanceBalance', 0)) || 0;
+
+  const wb = XLSX.utils.book_new();
+
+  // ── Sheet 1: Timesheet Tracker ──────────────────────────────
+  const sorted = [...entries].sort((a,b) => a.date.localeCompare(b.date) || a.start.localeCompare(b.start));
+
+  // Title rows
+  const tsData = [
+    ['TRAILBLAZERTECH.INC'],
+    [],
+    [],
+    ['Date', 'Client / Company', 'Start Time', 'End Time', 'Raw Hours', 'Billed Hours', 'Comments / Notes'],
+    ...sorted.map(e => [e.date, e.client, e.start, e.end, parseFloat(e.rawHours.toFixed(2)), parseFloat(e.billedHours.toFixed(2)), e.notes || '']),
+  ];
+
+  // Totals + weekly summary
+  const totalRaw = sorted.reduce((s,e) => s + e.rawHours, 0);
+  const totalBilled = sorted.reduce((s,e) => s + e.billedHours, 0);
+  const applied = Math.max(30, totalBilled);
+  const blankRow = tsData.length + 1;
+
+  tsData.push([]);
+  tsData.push([]);
+  tsData.push(['WEEKLY SUMMARY']);
+  tsData.push([]);
+  tsData.push(['Week Starting Date:', sorted[0]?.date || '', '', 'Total Billed Hours:', parseFloat(totalBilled.toFixed(2))]);
+  tsData.push(['', '', '', 'Applied Hours:', parseFloat(applied.toFixed(2))]);
+  tsData.push(['Note: Minimum 2 hours per job enforced in Billed Hours. Minimum 30 hours per week enforced in Applied Hours.']);
+  tsData.push([]);
+  tsData.push([]);
+  tsData.push(['Total Billed Hours:', parseFloat(totalBilled.toFixed(2))]);
+
+  const ws1 = XLSX.utils.aoa_to_sheet(tsData);
+
+  // Column widths
+  ws1['!cols'] = [
+    { wch: 13 }, // Date
+    { wch: 24 }, // Client
+    { wch: 11 }, // Start
+    { wch: 11 }, // End
+    { wch: 11 }, // Raw
+    { wch: 13 }, // Billed
+    { wch: 35 }, // Notes
+  ];
+
+  // Style helpers (SheetJS community edition supports cell styles via write options)
+  const headerRow = 4; // 1-indexed row of column headers
+  const colCount = 7;
+
+  // Bold the header row cells
+  for (let c = 0; c < colCount; c++) {
+    const addr = XLSX.utils.encode_cell({ r: headerRow - 1, c });
+    if (!ws1[addr]) ws1[addr] = { v: '' };
+    ws1[addr].s = { font: { bold: true }, fill: { fgColor: { rgb: '0F172A' } }, alignment: { horizontal: 'center' } };
+  }
+
+  // Make title bold
+  const titleCell = ws1['B1'] || (ws1['B1'] = { v: 'TRAILBLAZERTECH.INC' });
+  titleCell.s = { font: { bold: true, sz: 14 } };
+
+  XLSX.utils.book_append_sheet(wb, ws1, 'Timesheet Tracker');
+
+  // ── Sheet 2: Expense Tracker ─────────────────────────────────
+  const expSorted = [...expenses].sort((a,b) => a.date.localeCompare(b.date));
+  const totalSpent = expSorted.reduce((s,e) => s + (e.amount||0), 0);
+  const remaining = balance - totalSpent;
+
+  const expData = [
+    ['TRAILBLAZERTECH.INC - EXPENSE TRACKER'],
+    ['Track expenses against your advance allowance'],
+    [],
+    ['SETUP'],
+    [],
+    ['Advance Allowance Starting Balance ($):', balance, '', '', '', 'Current Remaining Balance ($):', parseFloat(remaining.toFixed(2))],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    ['EXPENSE LOG'],
+    [],
+    ['Date', 'Category', 'Description', 'Amount Spent', 'Receipt Attached', 'Allowance Remaining', '', 'Status'],
+    ...expSorted.map((e, i) => {
+      const runningBalance = balance - expSorted.slice(0, i+1).reduce((s,x) => s + x.amount, 0);
+      return [
+        e.date,
+        e.category,
+        e.description,
+        parseFloat(e.amount.toFixed(2)),
+        e.receipt,
+        parseFloat(runningBalance.toFixed(2)),
+        '',
+        runningBalance >= 0 ? 'OK' : 'OVER BUDGET'
+      ];
+    }),
+  ];
+
+  const ws2 = XLSX.utils.aoa_to_sheet(expData);
+  ws2['!cols'] = [
+    { wch: 13 }, { wch: 14 }, { wch: 28 }, { wch: 14 }, { wch: 17 }, { wch: 20 }, { wch: 4 }, { wch: 13 }
+  ];
+
+  XLSX.utils.book_append_sheet(wb, ws2, 'Expense Tracker');
+
+  // ── Write & download ─────────────────────────────────────────
+  const wbOut = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([wbOut], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const month = new Date().toLocaleDateString('en-CA', { year:'numeric', month:'2-digit' }).replace('/', '-');
+  a.download = `tbt-timesheet-${month}.xlsx`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  showToast('Excel file exported ✓', 'success');
 }
 
 async function exportJSON() {
